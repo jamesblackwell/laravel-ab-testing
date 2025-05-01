@@ -1,12 +1,12 @@
 {
-  "name": "quizgecko/laravel-ab-testing",
+  "name": "jamesblackwell/laravel-ab-testing",
   "description": "A/B Testing package for Laravel using Pennant",
   "type": "library",
   "license": "MIT",
   "authors": [
     {
-      "name": "James",
-      "email": "james@quizgecko.com",
+      "name": "James Blackwell",
+      "email": "hello@quizgecko.com",
       "role": "Developer"
     }
   ],
