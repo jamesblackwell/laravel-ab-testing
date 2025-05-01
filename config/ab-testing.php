@@ -45,7 +45,7 @@ return [
     | package. Change this if you have potential key collisions.
     |
     */
-    'cache_prefix' => 'ab_testing_', // Example: 'myapp_ab_' or leave empty
+    'cache_prefix' => '', // Example: 'myapp_ab_' or leave empty
 
     /*
     |--------------------------------------------------------------------------
