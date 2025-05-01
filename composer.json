@@ -1,0 +1,35 @@
+{
+  "name": "quizgecko/laravel-ab-testing",
+  "description": "A simple A/B testing framework for Laravel using Pennant.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Quizgecko",
+      "email": "YOUR_EMAIL"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "laravel/framework": "^10.0|^11.0",
+    "laravel/pennant": "^1.0",
+    "mathphp/math": "^3.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Quizgecko\\AbTesting\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Quizgecko\\AbTesting\\Providers\\AbTestingServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
