@@ -1,12 +1,12 @@
-# Laravel A/B Testing (Pennant)
+# Laravel A/B Testing
 
 A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https://laravel.com/docs/10.x/pennant).
 
-- **Track experiments** for both guests and authenticated users
-- **Automatic view/conversion tracking** with caching to prevent double counting
+- **Code driven** - define experiments using Laravel Pennant. Track views and conversions in your code.
+- **Zero flicker** - determine variants before rendering, no calls to external services.
+- **Privacy friendly** - keep all data on server.
 - **Admin dashboard** for real-time results and statistical significance
 - **Supports primary and secondary goals**
-- **Flexible scope**: use user model or guest ID (e.g. at Quizgecko we have a abid() helper)
 
 ---
 
@@ -23,10 +23,10 @@ php artisan vendor:publish --tag=ab-testing-migrations
 php artisan migrate
 ```
 
-Optionally, publish the views:
+Publish the configuration file (optional):
 
 ```bash
-php artisan vendor:publish --tag=ab-testing-views
+php artisan vendor:publish --tag=ab-testing-config
 ```
 
 ---
@@ -36,6 +36,9 @@ php artisan vendor:publish --tag=ab-testing-views
 1. **Define Experiments**
 
 Define your experiments in a service provider (e.g., `AppServiceProvider`). Use the `Feature` facade from Laravel Pennant. Always use a descriptive, kebab-case name including month/year.
+
+Important: currently only two variants are supported and the Feature should return `'test'` or `'control'`.
+You can also return `'not-in-experiment'` to exclude a user from the experiment. Only variants with `'test'` or `'control'` are considered in the admin dashboard.
 
 ```php
 use Illuminate\Support\Facades\Feature;
@@ -115,6 +118,21 @@ The package creates an `experiments` table:
 - `experiment_view($experimentName, $scope = null, $variant = null)`
 - `experiment_conversion($experimentName, $scope = null)`
 - `experiment_secondary_conversion($experimentName, $scope = null)`
+- `abid()`
+
+## abid
+
+The `abid()` function returns a unique identifier for the current user or guest. It is used to track views and conversions for anonymous users.
+
+```php
+$abid = abid();
+```
+
+For example, if you wanted to test a signup flow, use the abid as the scope:
+
+```php
+$variant = feature_flag('homepage-signup-copy-april-2025', abid());
+```
 
 ---
 
