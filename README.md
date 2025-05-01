@@ -6,7 +6,16 @@ A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https
 - **Zero flicker** - determine variants before rendering, no calls to external services.
 - **Privacy friendly** - keep all data on server.
 - **Admin dashboard** for real-time results and statistical significance
-- **Supports primary and secondary goals**
+- **Supports primary and secondary goals** - track multiple goals per experiment.
+
+## Quickstart
+
+1. Install `composer require quizgecko/laravel-ab-testing`
+2. [Define a Pennant Feature](https://laravel.com/docs/12.x/pennant#defining-features) with a justa 'test' and 'control' variant.
+3. Use `feature_flag('example-experiment', $userOrUniqueId)` to get the variant and display the variation to the user e.g. a different view code block in your views.
+4. Use `experiment_view('example-experiment', $userOrUniqueId)` to track views.
+5. Use `experiment_conversion('example-experiment', $userOrUniqueId)` to track conversions. Optionally track secondary conversions with `experiment_secondary_conversion('example-experiment', $userOrUniqueId)`.
+6. View results in admin dashboard at `yoursite.com/admin/ab`.
 
 ## Motivation
 
@@ -104,18 +113,6 @@ Visit `/admin/ab` (requires `auth` and `can:viewAdmin`) to see:
 
 ---
 
-## Database
-
-The package creates an `experiments` table:
-
-- `experiment_name` (string)
-- `variant` (string)
-- `total_views` (int)
-- `conversions` (int)
-- `secondary_conversions` (int)
-
----
-
 ## Helper Functions
 
 - `feature_flag($experimentName, $scope = null)`
@@ -140,6 +137,18 @@ $variant = feature_flag('homepage-signup-copy-april-2025', abid());
 
 ---
 
+## Database
+
+The package creates an `experiments` table:
+
+- `experiment_name` (string)
+- `variant` (string)
+- `total_views` (int)
+- `conversions` (int)
+- `secondary_conversions` (int)
+
+---
+
 ## Best Practices
 
 - Use descriptive, kebab-case experiment names with month/year.
@@ -147,6 +156,8 @@ $variant = feature_flag('homepage-signup-copy-april-2025', abid());
 - Remove old experiments and helpers when finished.
 - Place `experiment_view()` where the user meaningfully sees the experiment.
 - Place `experiment_conversion()` where the primary goal is completed.
+- Remove unused features from Pennant when done to prevent table bloat.
+- Delete older experiments from the database to keep it clean.
 
 ---
 
