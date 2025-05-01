@@ -1,3 +1,5 @@
+<img src="https://imagedelivery.net/1wpWmoOF0K-Y_NxLJO3e2w/b51e42aa-2d24-4070-44f1-9d21ce241200/public" alt="A/B Testing Dashboard Screenshot">
+
 # Laravel A/B Testing
 
 A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https://laravel.com/docs/10.x/pennant).
