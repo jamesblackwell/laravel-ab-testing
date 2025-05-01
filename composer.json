@@ -11,9 +11,9 @@
   ],
   "require": {
     "php": "^8.1",
-    "laravel/framework": "^10.0|^11.0",
+    "laravel/framework": "^10.0|^11.0|^12.0",
     "laravel/pennant": "^1.0",
-    "mathphp/math": "^3.0"
+    "markrogoyski/math-php": "^2.0"
   },
   "autoload": {
     "psr-4": {
