@@ -73,6 +73,11 @@ if (!function_exists('abid')) {
      */
     function abid(): ?string
     {
+
+        if (!config('ab-testing.auto_abid_handling', true)) {
+            throw new \RuntimeException('Automatic ABID handling is disabled. Please enable the "ab-testing.auto_abid_handling" configuration setting to use the abid() helper.');
+        }
+
         // Ensure request() helper is available (might not be in some contexts like console)
         if (!function_exists('request')) {
             return null;
