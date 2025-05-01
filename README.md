@@ -11,7 +11,7 @@ A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https
 ## Quickstart
 
 1. Install `composer require quizgecko/laravel-ab-testing` and run the migrations.
-2. [Define a Pennant Feature](https://laravel.com/docs/12.x/pennant#defining-features) with a justa 'test' and 'control' variant.
+2. [Define a Pennant Feature](https://laravel.com/docs/12.x/pennant#defining-features) with a 'test' and 'control' variant.
 3. Use `feature_flag('example-experiment', $userOrUniqueId)` to get the variant and display the variation to the user e.g. a different view code block in your views.
 4. Use `experiment_view('example-experiment', $userOrUniqueId)` to track views.
 5. Use `experiment_conversion('example-experiment', $userOrUniqueId)` to track conversions. Optionally track secondary conversions with `experiment_secondary_conversion('example-experiment', $userOrUniqueId)`.
