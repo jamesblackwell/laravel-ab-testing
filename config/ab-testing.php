@@ -82,4 +82,18 @@ return [
         'httpOnly' => true,
         'sameSite' => 'Lax',  // Recommended: Lax or Strict
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Require View Before Conversion Tracking
+    |--------------------------------------------------------------------------
+    |
+    | If enabled (true), the `trackConversion` method will only record a
+    | conversion if the same scope has previously been tracked for viewing
+    | the experiment (via `trackView`). If disabled (false), conversions
+    | can be tracked even if a corresponding view wasn't explicitly recorded
+    | or found in the cache.
+    |
+    */
+    'require_view_to_convert' => true,
 ];

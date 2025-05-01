@@ -123,21 +123,51 @@ class AbTestingService
                 return;
             }
 
-            // 2. Check if the user was actually part of the experiment (view was tracked)
-            $variantSeen = Cache::get($viewCacheKey);
-            if (!$variantSeen) {
-                // If view wasn't tracked (or cache expired), we shouldn't track the conversion
-                // as we can't reliably attribute it to a variant group.
-                Log::info('AbTestingService::trackConversion: Experiment view not found in cache for scope, skipping conversion.', [
-                    'experimentName' => $experimentName,
-                    'scope' => $this->getScopeIdentifier($scope),
-                    'conversionType' => $conversionType,
-                ]);
-                return;
+            $variantSeen = null; // Initialize variantSeen
+
+            // 2. Check if the user was actually part of the experiment (view was tracked), if required by config
+            if (config('ab-testing.require_view_to_convert', true)) {
+                $variantSeen = Cache::get($viewCacheKey);
+                if (!$variantSeen) {
+                    // If view wasn't tracked (or cache expired), we shouldn't track the conversion
+                    // as we can't reliably attribute it to a variant group.
+                    Log::info('AbTestingService::trackConversion: Experiment view not found in cache for scope (required), skipping conversion.', [
+                        'experimentName' => $experimentName,
+                        'scope' => $this->getScopeIdentifier($scope),
+                        'conversionType' => $conversionType,
+                    ]);
+                    return;
+                }
+            } else {
+                // If view is not required, try to get it from cache anyway for attribution,
+                // but don't prevent conversion if it's missing.
+                $variantSeen = Cache::get($viewCacheKey);
+                // Optional: Log if view wasn't found but conversion is proceeding
+                if (!$variantSeen) {
+                    Log::info('AbTestingService::trackConversion: Experiment view not found in cache, but proceeding with conversion as not required.', [
+                        'experimentName' => $experimentName,
+                        'scope' => $this->getScopeIdentifier($scope),
+                        'conversionType' => $conversionType,
+                    ]);
+                }
             }
 
-            // We retrieved the variant the user saw from the cache.
-            // Only increment conversions if the seen variant was 'test' or 'control'
+            // If variantSeen is still null here (meaning view check was skipped and cache was empty),
+            // we must determine the variant now to attribute the conversion.
+            // This is less reliable as the user might see a different variant now than when they converted.
+            if ($variantSeen === null) {
+                $featureResult = $this->getVariant($experimentName, $scope);
+                $variantSeen = $this->normalizeVariantInput($featureResult);
+                Log::warning('AbTestingService::trackConversion: Had to re-evaluate variant for conversion tracking as view was not required or cache missed.', [
+                    'experimentName' => $experimentName,
+                    'scope' => $this->getScopeIdentifier($scope),
+                    'evaluatedVariant' => $variantSeen,
+                    'conversionType' => $conversionType,
+                ]);
+            }
+
+            // We have the variant the user likely saw (either from cache or re-evaluated).
+            // Only increment conversions if the determined variant was 'test' or 'control'.
             if (in_array($variantSeen, ['test', 'control'])) {
                 Experiment::incrementConversions($experimentName, $variantSeen, $conversionType);
 
