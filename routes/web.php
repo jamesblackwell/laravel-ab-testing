@@ -3,4 +3,5 @@
 use Illuminate\Support\Facades\Route;
 use Quizgecko\AbTesting\Http\Controllers\AbTestingAdminController;
 
-Route::get('/admin/ab', [AbTestingAdminController::class, 'index'])->name('ab-testing.admin.index');
+// The prefix is applied in the Service Provider based on the config file
+Route::get('/', [AbTestingAdminController::class, 'index'])->name('ab-testing.admin.index');

@@ -10,6 +10,12 @@ class AbTestingServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Merge the package config file
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../config/ab-testing.php',
+            'ab-testing'
+        );
+
         $this->app->singleton(AbTestingService::class, function ($app) {
             return new AbTestingService();
         });
@@ -22,10 +28,17 @@ class AbTestingServiceProvider extends ServiceProvider
         $this->registerRoutes();
 
         if ($this->app->runningInConsole()) {
+            // Publish Config
+            $this->publishes([
+                __DIR__ . '/../../config/ab-testing.php' => config_path('ab-testing.php'),
+            ], 'ab-testing-config');
+
+            // Publish Views
             $this->publishes([
                 __DIR__ . '/../../resources/views' => resource_path('views/vendor/ab-testing'),
             ], 'ab-testing-views');
 
+            // Publish Migrations
             $this->publishes([
                 __DIR__ . '/../../database/migrations/' => database_path('migrations'),
             ], 'ab-testing-migrations');
@@ -42,10 +55,8 @@ class AbTestingServiceProvider extends ServiceProvider
     protected function routeConfiguration(): array
     {
         return [
-            // Add prefix, middleware etc. if needed in the future
-            // 'prefix' => config('ab-testing.route_prefix', 'admin'),
-            // 'middleware' => config('ab-testing.route_middleware', ['web', 'auth', 'can:viewAdmin']), // Example
-            'middleware' => ['web', 'auth', 'can:viewAdmin'] // Assuming default admin guard/middleware
+            'prefix' => config('ab-testing.route_prefix', 'admin/ab'), // Default prefix from config
+            'middleware' => config('ab-testing.route_middleware', ['web']), // Default middleware from config
         ];
     }
 }
