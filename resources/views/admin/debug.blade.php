@@ -25,7 +25,7 @@
                     Name</label>
                 <input type="text" name="experiment_name" id="experiment_name" list="experiment_list"
                     value="{{ $inputExperimentName ?? '' }}" placeholder="e.g., homepage-cta-test"
-                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2">
                 <datalist id="experiment_list">
                     @foreach ($distinctExperiments as $name)
                         <option value="{{ $name }}">
@@ -38,7 +38,7 @@
                     Identifier (User ID or Anonymous ID)</label>
                 <input type="text" name="scope_identifier" id="scope_identifier"
                     value="{{ $inputScopeIdentifier ?? '' }}" placeholder="e.g., 123 or anon_xyz789"
-                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                    class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm px-3 py-2">
             </div>
 
             <div>
@@ -98,8 +98,8 @@
                         </div>
                         <div>
                             <span class="font-medium">Assigned At:</span>
-                            <span
-                                class="ml-2">{{ $lookupData['feature']['assigned_at'] ? $lookupData['feature']['assigned_at']->format('Y-m-d H:i:s') : 'N/A' }}</span>
+                            {{-- Display raw value as it might be a string from DB facade --}}
+                            <span class="ml-2">{{ $lookupData['feature']['assigned_at'] ?? 'N/A' }}</span>
                         </div>
                     @else
                         <div>

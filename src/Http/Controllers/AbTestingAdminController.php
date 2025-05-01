@@ -8,7 +8,7 @@ use Illuminate\Contracts\View\View;
 use Quizgecko\AbTesting\Models\Experiment;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
-use Laravel\Pennant\Models\Feature as PennantFeature;
+use Illuminate\Support\Facades\DB;
 use App\Models\User; // Ensure User model is imported (or use config)
 
 class AbTestingAdminController extends Controller
@@ -105,9 +105,11 @@ class AbTestingAdminController extends Controller
             // --- Pennant Feature Lookup ---
             // Determine scope format for Pennant query
             $userModel = config('auth.providers.users.model', User::class);
-            $pennantScope = is_numeric($scopeIdentifier) ? $userModel . ':' . $scopeIdentifier : $scopeIdentifier;
+            $pennantScope = is_numeric($scopeIdentifier) ? $userModel . '|' . $scopeIdentifier : $scopeIdentifier;
 
-            $featureRecord = PennantFeature::where('name', $experimentName)
+            // Use DB Facade to query the features table directly
+            $featureRecord = DB::table('features')
+                ->where('name', $experimentName)
                 ->where('scope', $pennantScope)
                 ->first();
 
