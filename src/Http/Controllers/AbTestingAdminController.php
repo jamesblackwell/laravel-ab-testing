@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\User; // Ensure User model is imported (or use config)
+use Composer\InstalledVersions; // Add this line
 
 class AbTestingAdminController extends Controller
 {
@@ -74,8 +75,25 @@ class AbTestingAdminController extends Controller
      */
     public function debug(Request $request): View
     {
-        $distinctExperiments = Experiment::distinct()->orderBy('experiment_name')->pluck('experiment_name');
+        $distinctExperiments = Experiment::distinct()->orderBy('created_at', 'desc')->pluck('experiment_name');
         $lookupData = null;
+        $packageVersion = 'unknown'; // Default value
+
+        try {
+            // Attempt to get the pretty version (e.g., v1.0.0)
+            $version = InstalledVersions::getPrettyVersion('quizgecko/laravel-ab-testing');
+            // If pretty version isn't set (e.g., dev branch), try getting the reference (commit hash)
+            if (!$version || str_starts_with($version, 'dev-')) {
+                $reference = InstalledVersions::getReference('quizgecko/laravel-ab-testing');
+                // Shorten the commit hash if found
+                $packageVersion = $reference ? substr($reference, 0, 7) : 'dev/local';
+            } else {
+                $packageVersion = $version;
+            }
+        } catch (\OutOfBoundsException $e) {
+            // Package likely installed via path repository or part of the main app's repo
+            $packageVersion = 'dev/local';
+        }
 
         $experimentName = $request->input('experiment_name');
         $scopeIdentifier = $request->input('scope_identifier'); // e.g., "123" or "anonymous_id_abc"
@@ -127,6 +145,7 @@ class AbTestingAdminController extends Controller
             'lookupData' => $lookupData,
             'inputExperimentName' => $experimentName, // Pass back input for repopulation
             'inputScopeIdentifier' => $scopeIdentifier,
+            'packageVersion' => $packageVersion, // Add this line
         ]);
     }
 }

@@ -31,19 +31,28 @@ class Experiment extends Model
     {
         $variant = self::normalizeVariant($variant);
 
-        // Use updateOrCreate to handle potential race conditions slightly better
-        // And leverage database atomicity for the increment if possible
-        $experiment = static::updateOrCreate(
+        // Use firstOrCreate to ensure the record exists
+        $experiment = static::firstOrCreate(
             ['experiment_name' => $experimentName, 'variant' => $variant],
-            ['total_views' => DB::raw('total_views + 1')]
+            ['total_views' => 0] // Default to 0 if creating
         );
 
-        // Note: updateOrCreate doesn't return the full model with increments applied
-        // immediately unless the record was just created. If precise counts
-        // are needed immediately after, a fresh fetch might be required.
-        // For just incrementing, this is often sufficient and more robust.
+        // Now atomically increment the views for the found/created record
+        $affectedRows = static::where('id', $experiment->id)
+            ->increment('total_views');
 
-        return $experiment; // Returns the model instance (might not reflect the +1 immediately if updated)
+        if ($affectedRows === 0) {
+            Log::warning('Failed to increment experiment views', [
+                'experiment_id' => $experiment->id,
+                'experiment_name' => $experimentName,
+                'variant' => $variant
+            ]);
+        }
+
+        // Optionally reload the model if the updated count is needed immediately
+        // $experiment->refresh();
+
+        return $experiment;
     }
 
     public static function incrementConversions(string $experimentName, string|bool $variant, string $conversionType = 'primary')
@@ -61,10 +70,29 @@ class Experiment extends Model
 
         $column = $conversionType === 'secondary' ? 'secondary_conversions' : 'conversions';
 
-        return self::updateOrCreate(
+        // Use firstOrCreate to ensure the record exists
+        $experiment = static::firstOrCreate(
             ['experiment_name' => $experimentName, 'variant' => $variant],
-            [$column => DB::raw("$column + 1")]
+            [$column => 0] // Default to 0 if creating
         );
+
+        // Now atomically increment the conversions for the found/created record
+        $affectedRows = static::where('id', $experiment->id)
+            ->increment($column);
+
+        if ($affectedRows === 0) {
+            Log::warning('Failed to increment experiment conversions', [
+                'experiment_id' => $experiment->id,
+                'experiment_name' => $experimentName,
+                'variant' => $variant,
+                'column' => $column
+            ]);
+        }
+
+        // Optionally reload the model if the updated count is needed immediately
+        // $experiment->refresh();
+
+        return $experiment;
     }
 
     private static function normalizeVariant(string|bool $variant): string

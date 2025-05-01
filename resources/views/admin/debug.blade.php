@@ -10,13 +10,14 @@
             &larr; Back to Dashboard
         </a>
     </div>
+    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Package Version: {{ $packageVersion ?? 'N/A' }}</p>
 @endsection
 
 @section('content')
     <div class="bg-white dark:bg-gray-800 sm:rounded-lg shadow overflow-hidden p-6 space-y-6">
         <p class="text-gray-600 dark:text-gray-400">
             Use this tool to inspect the cache entries and Pennant feature assignment for a specific experiment and scope
-            (User ID or Anonymous ID).
+            (User ID or your scope ID used in the Pennant feature).
         </p>
 
         <form method="GET" action="{{ route('ab-testing.debug') }}" class="space-y-4">

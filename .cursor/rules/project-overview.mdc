@@ -3,7 +3,8 @@ description:
 globs: 
 alwaysApply: false
 ---
-- This is a Laravel Package called laravel-ab-testing
+- This is a Laravel Package called jamesblackwell/laravel-ab-testing
+- It is published to packagist under the same name.
 - The aim of the package is to provide A/B testing functionality on top of Laravel Pennant
 - Follow typical Laravel package conventions.
 - The core logic can be found in [AbTestingService.php](mdc:src/Services/AbTestingService.php)
