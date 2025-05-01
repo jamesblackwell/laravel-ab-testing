@@ -8,6 +8,10 @@ A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https
 - **Admin dashboard** for real-time results and statistical significance
 - **Supports primary and secondary goals**
 
+## Motivation
+
+Laravel Pennant is a great package to handle feature flags, however it still requires you to setup a lot of tracking to run actual A/B tests. This package works on top of Pennant and adds various easy to use helpers to track views and conversions, then displays the results in a dashboard.
+
 ---
 
 ## Installation
