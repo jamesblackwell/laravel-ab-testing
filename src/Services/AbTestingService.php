@@ -183,7 +183,7 @@ class AbTestingService
                 ]);
             } else {
                 // This case should be rare if trackView filters correctly, but log just in case.
-                Log::warning('AbTestingService::trackConversion: Conversion attempted for scope that viewed a non-standard variant.', [
+                Log::debug('AbTestingService::trackConversion: Conversion attempted for scope that viewed a non-standard variant.', [
                     'experimentName' => $experimentName,
                     'scope' => $this->getScopeIdentifier($scope),
                     'variantSeen' => $variantSeen,
