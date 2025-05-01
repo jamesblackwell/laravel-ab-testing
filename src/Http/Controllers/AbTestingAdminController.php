@@ -75,7 +75,12 @@ class AbTestingAdminController extends Controller
      */
     public function debug(Request $request): View
     {
-        $distinctExperiments = Experiment::distinct()->orderBy('created_at', 'desc')->pluck('experiment_name');
+        // Corrected query: Select distinct names, group by name, order by the max created_at per group, then pluck names.
+        $distinctExperiments = Experiment::select('experiment_name')
+            ->groupBy('experiment_name')
+            ->orderByRaw('MAX(created_at) DESC')
+            ->pluck('experiment_name');
+
         $lookupData = null;
         $packageVersion = 'unknown'; // Default value
 
