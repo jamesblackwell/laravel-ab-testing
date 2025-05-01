@@ -18,11 +18,11 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase; // Use Testbench TestCase
 class TestAbTestingService extends AbTestingService
 {
     // Note: This override might need adjustment depending on how the package handles default scope.
-    // If the package's resolveScope handles qgid internally, this might not be necessary
+    // If the package's resolveScope handles abid internally, this might not be necessary
     // or might need to use the actual package mechanism if available in tests.
     public function resolveScope(User|string|null $scope): User|string|null
     {
-        return $scope ?? 'test-qgid-123';
+        return $scope ?? 'test-abid-123';
     }
 }
 

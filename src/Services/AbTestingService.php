@@ -16,13 +16,13 @@ class AbTestingService
      * Get the assigned variant for a feature flag and scope.
      *
      * @param string $featureName
-     * @param User|string|null $scope If null, uses qgid(). Can be User object or qgid string.
+     * @param User|string|null $scope If null, uses abid(). Can be User object or abid string.
      * @return mixed The resolved feature value (e.g., 'control', 'test', true, false).
      */
     public function getVariant(string $featureName, User|string|null $scope = null): mixed
     {
         $scope = $this->resolveScope($scope);
-        // Return default value if scope cannot be determined (e.g., qgid() returns null)
+        // Return default value if scope cannot be determined (e.g., abid() returns null)
         if (empty($scope)) {
             return Feature::getDefaultValue($featureName);
         }
@@ -36,7 +36,7 @@ class AbTestingService
      * Only tracks views for 'test' or 'control' variants.
      *
      * @param string $experimentName The name of the experiment (should match the feature flag name).
-     * @param User|string|null $scope If null, uses qgid().
+     * @param User|string|null $scope If null, uses abid().
      * @param string|bool|null $variant Explicit variant (optional). If provided, must be normalized ('test'/'control'). If null, it's fetched.
      * @return void
      */
@@ -70,7 +70,8 @@ class AbTestingService
             if (in_array($resolvedVariant, ['test', 'control'])) {
                 Experiment::incrementViews($experimentName, $resolvedVariant);
                 // Cache that this scope has viewed this experiment variant
-                Cache::put($cacheKey, $resolvedVariant, now()->addDays(90)); // Store the variant seen
+                $cacheDuration = config('ab-testing.cache_duration_days', 90);
+                Cache::put($cacheKey, $resolvedVariant, now()->addDays($cacheDuration)); // Store the variant seen
             } else {
                 Log::debug('AbTestingService::trackView: View not tracked for non-standard variant.', [
                     'experimentName' => $experimentName,
@@ -98,7 +99,7 @@ class AbTestingService
      * Only tracks conversions for 'test' or 'control' variants.
      *
      * @param string $experimentName The name of the experiment.
-     * @param User|string|null $scope If null, uses qgid().
+     * @param User|string|null $scope If null, uses abid().
      * @param string $conversionType 'primary' or 'secondary'.
      * @return void
      */
@@ -141,7 +142,8 @@ class AbTestingService
                 Experiment::incrementConversions($experimentName, $variantSeen, $conversionType);
 
                 // Set a cache entry to mark this user as converted for this specific type
-                Cache::put($conversionCacheKey, true, now()->addDays(90));
+                $cacheDuration = config('ab-testing.cache_duration_days', 90);
+                Cache::put($conversionCacheKey, true, now()->addDays($cacheDuration));
 
                 Log::info('AbTestingService::trackConversion: Conversion tracked successfully.', [
                     'experimentName' => $experimentName,
@@ -179,10 +181,10 @@ class AbTestingService
     }
 
     /**
-     * Resolve the scope, defaulting to qgid() if null or invalid.
+     * Resolve the scope, defaulting to abid() if null or invalid.
      *
      * @param User|string|null $scope
-     * @return User|string|null The resolved scope (User object or qgid string), or null if qgid is unavailable.
+     * @return User|string|null The resolved scope (User object or abid string), or null if abid is unavailable.
      */
     protected function resolveScope(User|string|null $scope): User|string|null
     {
@@ -190,13 +192,13 @@ class AbTestingService
             return $scope;
         }
         if (is_string($scope) && !empty($scope)) {
-            return $scope; // Assume it's a valid qgid string if passed explicitly
+            return $scope; // Assume it's a valid abid string if passed explicitly
         }
-        // If null or invalid, try to get qgid automatically
-        if (function_exists('qgid')) { // Check if helper exists
-            return qgid();
+        // If null or invalid, try to get abid automatically
+        if (function_exists('abid')) { // Check if abid() helper exists
+            return abid();
         }
-        Log::warning('AbTestingService: qgid() helper function not available.');
+        Log::warning('AbTestingService: abid() helper function not available or auto_abid_handling is disabled.');
         return null; // Return null if scope cannot be resolved
     }
 
@@ -229,7 +231,8 @@ class AbTestingService
     protected function getCacheKey(string $experimentName, User|string $scope, string $type): string
     {
         $scopeId = $this->getScopeIdentifier($scope);
-        return "abtesting-{$type}-" . Str::slug($experimentName) . '-' . $scopeId;
+        $prefix = config('ab-testing.cache_prefix', '');
+        return "{$prefix}{$type}-" . Str::slug($experimentName) . '-' . $scopeId;
     }
 
     /**
@@ -243,6 +246,7 @@ class AbTestingService
         if ($scope instanceof User) {
             return 'user-' . $scope->id;
         }
-        return 'qgid-' . (string) $scope;
+        // Use 'abid-' prefix for non-user scopes
+        return 'abid-' . (string) $scope;
     }
 }

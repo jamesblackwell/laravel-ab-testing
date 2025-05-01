@@ -6,7 +6,7 @@ A simple, robust A/B testing framework for Laravel using [Laravel Pennant](https
 - **Automatic view/conversion tracking** with caching to prevent double counting
 - **Admin dashboard** for real-time results and statistical significance
 - **Supports primary and secondary goals**
-- **Flexible scope**: use user model or guest ID (e.g. at Quizgecko we have a qgid() helper)
+- **Flexible scope**: use user model or guest ID (e.g. at Quizgecko we have a abid() helper)
 
 ---
 
@@ -52,7 +52,7 @@ Feature::define('homepage-signup-copy-april-2025', function ($scope) {
 });
 ```
 
-- **Scope**: Use `$scope` as either a `User` or a guest ID (like `qgid()`).
+- **Scope**: Use `$scope` as either a `User` or a guest ID (like `abid()`).
 - **Return values**: `'test'`, `'control'`, or `'not-in-experiment'`.
 
 2. **Check Variant in Code**
@@ -80,7 +80,7 @@ experiment_conversion('homepage-signup-copy-april-2025', $userOrUniqueId); // Wh
 experiment_secondary_conversion('homepage-signup-copy-april-2025', $userOrUniqueId); // For secondary goals
 ```
 
-- Always pass the same scope (`User` or `qgid`) as used in the feature definition.
+- Always pass the same scope (`User` or `abid`) as used in the feature definition.
 - Views are only tracked once per user/guest per experiment.
 - Conversions are only tracked if a view was previously tracked.
 
@@ -121,7 +121,7 @@ The package creates an `experiments` table:
 ## Best Practices
 
 - Use descriptive, kebab-case experiment names with month/year.
-- Always pass the correct scope (User or qgid) to helpers.
+- Always pass the correct scope (User or abid) to helpers.
 - Remove old experiments and helpers when finished.
 - Place `experiment_view()` where the user meaningfully sees the experiment.
 - Place `experiment_conversion()` where the primary goal is completed.

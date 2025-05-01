@@ -4,7 +4,9 @@ namespace Quizgecko\AbTesting\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Routing\Router;
 use Quizgecko\AbTesting\Services\AbTestingService;
+use Quizgecko\AbTesting\Http\Middleware\GenerateAbidMiddleware;
 
 class AbTestingServiceProvider extends ServiceProvider
 {
@@ -21,11 +23,15 @@ class AbTestingServiceProvider extends ServiceProvider
         });
     }
 
-    public function boot(): void
+    public function boot(Router $router): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'ab-testing');
         $this->registerRoutes();
+
+        if (config('ab-testing.auto_abid_handling', true)) {
+            $router->pushMiddlewareToGroup('web', GenerateAbidMiddleware::class);
+        }
 
         if ($this->app->runningInConsole()) {
             // Publish Config
