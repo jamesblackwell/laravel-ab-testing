@@ -75,7 +75,9 @@ if (!function_exists('abid')) {
     {
 
         if (!config('ab-testing.auto_abid_handling', true)) {
-            throw new \RuntimeException('Automatic ABID handling is disabled. Please enable the "ab-testing.auto_abid_handling" configuration setting to use the abid() helper.');
+            // Log a warning instead of throwing an exception
+            Log::warning('Automatic ABID handling is disabled. abid() will return null. Please enable the "ab-testing.auto_abid_handling" configuration setting if you intend to use the abid() helper for automatic ID generation.');
+            return null;
         }
 
         // Ensure request() helper is available (might not be in some contexts like console)
