@@ -22,10 +22,9 @@ class AbTestingService
     public function getVariant(string $featureName, User|string|null $scope = null): mixed
     {
         $scope = $this->resolveScope($scope);
-        // Return default value if scope cannot be determined (e.g., abid() returns null)
-        if (empty($scope)) {
-            return Feature::getDefaultValue($featureName);
-        }
+        // Always call Feature::for($scope)->value($featureName).
+        // Pennant will return false if the scope is null and the feature definition doesn't handle null.
+        // This 'false' will be treated as 'control' by normalizeVariantInput if needed.
         return Feature::for($scope)->value($featureName);
     }
 
